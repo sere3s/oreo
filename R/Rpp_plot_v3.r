@@ -117,7 +117,7 @@ plotColeCole <- function(Gp_t,Gpp_t,type="l",...){
 #' @references Simon A. Rogersa, M. Paul Letting, A sequence of physical processes determined and quantified in large-amplitude oscillatory shear (LAOS): Application to theoretical nonlinear models
 #' Journal of Rheology 56:1, 1-25 
 plotVGP <- function(G_star_t,delta_t,type="l",...){
-  plot(G_star_t,delta_t,main="VGP plot",xlab=expression("G*"[t]*" [Pa]"),ylab=expression("delta"[t]*" [rad]"), col="red",lwd=2,...)
+  plot(G_star_t,delta_t,main="Van Gurp-Palmen-plot",xlab=expression("G*"[t]*" [Pa]"),ylab=expression("delta"[t]*" [rad]"), col="red",lwd=2,...)
   abline(h=0, v=0,lty=2)}
 
 
