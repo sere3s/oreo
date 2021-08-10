@@ -1,431 +1,439 @@
-#' Stress-Strain plot
-#' 
-#' @description create Stress Strain Plot
-#' @param stress data the output matrix from fft analysis or numerical differentiation analysis
-#' @param strain data the output matrix from fft analysis or numerical differentiation analysis
-#' @param stress_in data the input matrix from fft analysis or numerical differentiation analysis
-#' @param strain_in data the input matrix from fft analysis or numerical differentiation analysis
-#' @param ... parameters of plot()
-#' @return {No return value}
-#' @author Giorgio Luciano and Serena Beretta, based on the Plotting functions created by Simon Rogers Group for Soft Matter
-#' @keywords SPP Stress-Strain plot
-#' @examples \donttest{ data(mydata)
-#' df <- rpp_read2(mydata , selected=c(2, 3, 4, 0, 0, 1, 0, 0))
-#' time_wave <- df$raw_time
-#' resp_wave <- data.frame(df$strain,df$strain_rate,df$stress) 
-#' out <- Rpp_num(time_wave, resp_wave , L=1024, k=8, num_mode=1)
-#' strain= out$spp_data_out$strain
-#' stress= out$spp_data_out$stress
-#' strain_in= out$spp_data_in$strain
-#' stress_in= out$spp_data_in$stress
-#' plotStressStrain(stress, strain,strain_in,stress_in)
-#' 
-#' @export
-#' @references Simon A. Rogersa, M. Paul Letting, A sequence of physical processes determined and quantified in large-amplitude oscillatory shear (LAOS): Application to theoretical nonlinear models
-#' Journal of Rheology 56:1, 1-25 
 
-plotStressStrain <- function(stress, strain,strain_in,stress_in,...){
-  plot(strain, stress , main="stress-strain", xlab="Strain [-]", ylab ="Stress [Pa]",type="l", col="red",lwd=2)
-  lines(strain_in,stress_in, col="blue")
-  legend("topleft",legend=c("raw stress", "reconstructed"),col=c("red", "blue"), lty=1:2, cex=0.6)
-  abline(h=0, v=0,lty=2)
+# This functions produce figures using the SPP analysis; if specified by
+# the user, the figures can also be saved to .jpg files
+    #Inputs: spp_data_in = Lx4 matrix of the data input to the analysis,
+                #with each row representing a measuring point. The columns
+                #are: 1 - time [s]
+                # 2 - strain [-]
+                # 3 - rate [1/s]
+                # 4 - stress [Pa]
+            #spp_params = 1x6 vector containing input parameters for the
+                #spp analysis (frequency,#harmonics used,#cycles,maximum
+                ##harmonics,step size,num mode). All non-applicable
+                #values are NaN
+            #spp_data_out = Lx15 matrix containing all primary results from
+                #the SPP analysis. The columns are:
+                # 1 - time [s]
+                # 2 - strain [-]
+                # 3 - rate [1/s]
+                # 4 - stress [Pa]
+                # 5 - G'_t [Pa]
+                # 6 - G''_t [Pa]
+                # 7 - |G*_t| [Pa]
+                # 8 - tan(delta_t) []
+                # 9 - delta_t [rad]
+                # 10 - displacement stress [Pa]
+                # 11 - estimated equilibrium strain [-]
+                    #(valid for G'_t>>G''_t)
+                # 12 - derivative of G'_t [Pa/s]
+                # 13 - derivative of G''_t [Pa/s]
+                # 14 - speed of G*_t [Pa/s]
+                # 15 - Normalized phase angle velocity []
+                    #(assumes that strain is sinusoidal)
+            #ft_out = Lx2 vector containing the fourier domain filtering
+                #results. If numerical differentiation was used, this is
+                #NaN. The columns are:
+                # 1 - domain
+                # 2 - normalized harmonics
+            #pf_state = binary value determining whether to save figures
+                #as .jpg files
+            #analtype = analysis method used (as a string)
+            #fname = name of file from which the data originated
+            #f_vect = vector that specifies which figures to create
+		
+
+#' titolo....
+#' 
+#' @description cosa fa la funzione...
+#' @return 
+#' @author 
+#' @keywords 
+#' @examples \dontest{
+#' plot()
+#' }
+#' @export
+#' @references 
+
+
+theme_giolu <- function () { 
+    theme_bw(base_size=12, base_family="sans") %+replace% 
+        theme(
+            panel.background  = element_blank(),
+            plot.background = element_rect(fill="transparent", colour=NA), 
+            legend.background = element_rect(fill="transparent", colour=NA),
+            legend.key = element_rect(fill="transparent", colour=NA),
+			panel.grid.major = element_blank(), 
+			panel.grid.minor = element_blank()
+        )
 }
 
 
-#' Stress-Rate plot
+#' titolo....Stress-Strain plot
 #' 
-#' @description create Stress Rate Plot
-#' @param stress data the output matrix from fft analysis or numerical differentiation analysis
-#' @param rate data the output matrix from fft analysis or numerical differentiation analysis
-#' @param ... parameters of plot()
-#' @return {No return value}
-#' @author Giorgio Luciano and Serena Beretta, based on the Plotting functions created by Simon Rogers Group for Soft Matter
-#' @keywords SPP Stress-Strain plot
-#' @examples \donttest{ data(mydata)
-#' df <- rpp_read2(mydata , selected=c(2, 3, 4, 0, 0, 1, 0, 0))
-#' time_wave <- df$raw_time
-#' resp_wave <- data.frame(df$strain,df$strain_rate,df$stress) 
-#' out <- Rpp_num(time_wave, resp_wave , L=1024, k=8, num_mode=1)
-#' rate= out$spp_data_out$rate
-#' stress= out$spp_data_out$stress
-#' plotStressRate(stress, rate)
-#' 
+#' @description cosa fa la funzione...
+#' @param data
+#' @return 
+#' @author 
+#' @keywords 
+#' @examples \dontest{
+#' plot()
+#' }
 #' @export
-#' @references Simon A. Rogersa, M. Paul Letting, A sequence of physical processes determined and quantified in large-amplitude oscillatory shear (LAOS): Application to theoretical nonlinear models
-#' Journal of Rheology 56:1, 1-25 
+#' @references 
 
-plotStressRate <- function(stress, rate,...){
-  plot(stress,rate,main="stress-rate",xlab ="Rate [1/s]", ylab="Stress [Pa]",type="l", col="red",lwd=2)
-  abline(h=0, v=0,lty=2)
-}
+ggplotStressStrain <- function(data=spp_data_out,spp_data_in,...){
+	 ggplot(data,...) + 
+     geom_path(aes(x=strain, y=stress),size=1.1)+
+	 geom_path(data=(spp_data_in),aes(x=strain, y=stress),colour="red") + 
+	 labs(title="stress-strain",x ="Strain [-]", y = "Stress [Pa]") +
+	 geom_vline(xintercept = 0, linetype="dashed", color = "black") +
+	 geom_hline(yintercept = 0, linetype="dashed", color = "black") +
+	 theme_giolu()}
+	 
 
 
-#' Cole-Cole plot
+#' titolo....Stress-Rate plot
 #' 
-#' @description create Cole-Cole plot
-#' @param Gp_t from the output matrix from fft analysis or numerical differentiation analysis
-#' @param Gpp_t from the output matrix from fft analysis or numerical differentiation analysis
-#' @param ... parameters of plot()
-#' @return {No return value}
-#' @author Giorgio Luciano and Serena Beretta, based on the Plotting functions created by Simon Rogers Group for Soft Matter
-#' @keywords SPP Cole-Cole plot
-#' @examples \donttest{ data(mydata)
-#' df <- rpp_read2(mydata , selected=c(2, 3, 4, 0, 0, 1, 0, 0))
-#' time_wave <- df$raw_time
-#' resp_wave <- data.frame(df$strain,df$strain_rate,df$stress) 
-#' out <- Rpp_num(time_wave, resp_wave , L=1024, k=8, num_mode=1)
-#' Gp_t= out$spp_data_out$Gp_t
-#' Gpp_t= out$spp_data_out$Gpp_t
-#' plotColeCole(Gp_t,Gpp_t)
-#' 
+#' @description cosa fa la funzione...
+#' @param data
+#' @return 
+#' @author 
+#' @keywords 
+#' @examples \dontest{
+#' plot()
+#' }
 #' @export
-#' @import graphics
-#' @references Simon A. Rogersa, M. Paul Letting, A sequence of physical processes determined and quantified in large-amplitude oscillatory shear (LAOS): Application to theoretical nonlinear models
-#' Journal of Rheology 56:1, 1-25 
-plotColeCole <- function(Gp_t,Gpp_t,...){
-  plot(Gp_t,Gpp_t,main="Cole-Cole plot",xlab=expression("G'"[t]*" [Pa]"),ylab=expression("G''"[t]*" [Pa]"),type="l", col="red",lwd=2)
-  abline(h=0,v=0, lty=2)
-  abline(a=c(0,0), b=c(1,1),lty=2)
-}
+#' @references 
+ggplotStressRate <- function(data=spp_data_out,...){
+	  ggplot(data,...) +
+	  geom_path(aes(x=stress, y=rate),colour="red",size=1.1) + 
+	  labs(title="stress-rate",x ="Rate [1/s]", y = "Stress [Pa]") +
+	  geom_vline(xintercept = 0, linetype="dashed", color = "black") +
+	  geom_hline(yintercept = 0, linetype="dashed", color = "black") +
+	  theme_giolu()}
+	 
 
 
 
 
 
-#' VGP plot
+#' titolo....Cole-Cole plot
 #' 
-#' @description create VGP plot
-#' @param G_star_t from the output matrix from fft analysis or numerical differentiation analysis
-#' @param delta_t from the output matrix from fft analysis or numerical differentiation analysis
-#' @param ... parameters of plot()
-#' @return {No return value}
-#' @author Giorgio Luciano and Serena Beretta, based on the Plotting functions created by Simon Rogers Group for Soft Matter
-#' @examples \donttest{ data(mydata)
-#' df <- rpp_read2(mydata , selected=c(2, 3, 4, 0, 0, 1, 0, 0))
-#' time_wave <- df$raw_time
-#' resp_wave <- data.frame(df$strain,df$strain_rate,df$stress) 
-#' out <- Rpp_num(time_wave, resp_wave , L=1024, k=8, num_mode=1)
-#' G_star_t= out$spp_data_out$G_star_t
-#' delta_t= out$spp_data_out$delta_t
-#' plotVGP(G_star_t,delta_t)
-#' 
+#' @description cosa fa la funzione...
+#' @param data
+#' @return 
+#' @author 
+#' @keywords 
+#' @examples \dontest{
+#' plot()
+#' }
 #' @export
-#' @references Simon A. Rogersa, M. Paul Letting, A sequence of physical processes determined and quantified in large-amplitude oscillatory shear (LAOS): Application to theoretical nonlinear models
-#' Journal of Rheology 56:1, 1-25 
-plotVGP <- function(G_star_t,delta_t,...){
-  plot(G_star_t,delta_t,main="VGP plot",xlab=expression("G*"[t]*" [Pa]"),ylab=expression("delta"[t]*" [rad]"),type="l", col="red",lwd=2)
-  abline(h=0, v=0,lty=2)}
+#' @references 
+ggplotColeCole <- function(data=spp_data_out,...){
+	  ggplot(data,...) + 
+	  geom_path(aes(x=Gp_t, y=Gpp_t),colour="red",size=1.1) +
+	  labs(title="Cole-Cole plot",x =expression("G'"[t]*" [Pa]"), y = expression("G''"[t]*" [Pa]")) +
+	  geom_vline(xintercept = 0, linetype="dashed", color = "black") +
+	  geom_hline(yintercept = 0, linetype="dashed", color = "black") +
+	  theme_giolu()}
+	 
+	
 
 
 
-
-#' Gp_t_dot vs Gpp_t_dot
+#' titolo....VGP plot
 #' 
-#' @description create Gp_t_dot vs Gpp_t_dot
-#' @param Gp_t_dot from the output matrix from fft analysis or numerical differentiation analysis
-#' @param Gpp_t_dot from the output matrix from fft analysis or numerical differentiation analysis
-#' @param ... parameters of plot()
-#' @return {No return value}
-#' @author Giorgio Luciano and Serena Beretta, based on the Plotting functions created by Simon Rogers Group for Soft Matter
-#' 
-#' @examples \donttest{ data(mydata)
-#' df <- rpp_read2(mydata , selected=c(2, 3, 4, 0, 0, 1, 0, 0))
-#' time_wave <- df$raw_time
-#' resp_wave <- data.frame(df$strain,df$strain_rate,df$stress) 
-#' out <- Rpp_num(time_wave, resp_wave , L=1024, k=8, num_mode=1)
-#' Gp_t_dot= out$spp_data_out$Gp_t_dot
-#' Gpp_t_dot= out$spp_data_out$Gpp_t_dot
-#' plotGpdot(Gp_t_dot,Gpp_t_dot)
-#' 
+#' @description cosa fa la funzione...
+#' @param data
+#' @return 
+#' @author 
+#' @keywords 
+#' @examples \dontest{
+#' plot()
+#' }
 #' @export
-#' @references Simon A. Rogersa, M. Paul Letting, A sequence of physical processes determined and quantified in large-amplitude oscillatory shear (LAOS): Application to theoretical nonlinear models
-#' Journal of Rheology 56:1, 1-25 
-plotGpdot <- function(Gp_t_dot,Gpp_t_dot,...){
-  plot(Gp_t_dot,Gpp_t_dot,main=expression("dG'"[t]*"/dt-dG''"[t]*"/dt"), xlab=expression("dG'"[t]*"/dt [Pa/s]"),ylab=expression("dG''"[t]*"/dt [Pa/s]"),type="l", col="red",lwd=2 ) 
-}
+#' @references 
+ggplotVGP <- function(data=spp_data_out,...){
+	  ggplot(data,...) + 
+	  geom_path(aes(x=G_star_t, y=delta_t),colour="red",size=1.1) +
+	  labs(title="VGP plot",x =expression("G*"[t]*" [Pa]"), y = expression("delta"[t]*" [rad]")) +
+	  geom_vline(xintercept = 0, linetype="dashed", color = "black") +
+	  geom_hline(yintercept = 0, linetype="dashed", color = "black") +
+	  theme_giolu()}
+	 
 
 
-#' Speed-G'_{t} plot
+
+
+#' titolo....dG"_{t}/dt-dG'_{t}/dt plot 
 #' 
-#' @description create Speed-G'_{t} plot
-#' @param Gp_t from the output matrix from fft analysis or numerical differentiation analysis
-#' @param G_speed from the output matrix from fft analysis or numerical differentiation analysis
-#' @param ... parameters of plot()
-#' @return {No return value}
-#' @author Giorgio Luciano and Serena Beretta, based on the Plotting functions created by Simon Rogers Group for Soft Matter
-#' @examples \donttest{ data(mydata)
-#' df <- rpp_read2(mydata , selected=c(2, 3, 4, 0, 0, 1, 0, 0))
-#' time_wave <- df$raw_time
-#' resp_wave <- data.frame(df$strain,df$strain_rate,df$stress) 
-#' out <- Rpp_num(time_wave, resp_wave , L=1024, k=8, num_mode=1)
-#' Gp_t= out$spp_data_out$Gp_t
-#' G_speed= out$spp_data_out$G_speed
-#' plotSpeedGp(Gp_t,G_speed)
-#' 
+#' @description cosa fa la funzione...
+#' @param data
+#' @return 
+#' @author 
+#' @keywords 
+#' @examples \dontest{
+#' plot()
+#' }
 #' @export
-#' @references Simon A. Rogersa, M. Paul Letting, A sequence of physical processes determined and quantified in large-amplitude oscillatory shear (LAOS): Application to theoretical nonlinear models
-#' Journal of Rheology 56:1, 1-25
+#' @references 
+ggplotGpdot <- function(data=spp_data_out,...){
+	  ggplot(data,...) + 
+	  geom_path(aes(x=Gp_t_dot, y=Gpp_t_dot),colour="red",size=1.1) +
+	  labs(title=expression("dG'"[t]*"/dt-dG''"[t]*"/dt"),x=expression("dG'"[t]*"/dt [Pa/s]"), y =expression("dG''"[t]*"/dt [Pa/s]")) +
+	  geom_vline(xintercept = 0, linetype="dashed", color = "black") +
+	  geom_hline(yintercept = 0, linetype="dashed", color = "black") +
+	  theme_giolu()}
+	  
 
-plotSpeedGp <- function(Gp_t,G_speed,...){
-  plot(Gp_t,G_speed,main=expression("Speed-G'"[t]*"") ,xlab=expression("G'"[t]*" [Pa]"),ylab=expression("Speed-G''"[t]*" [Pa/s]"),type="l", col="red",lwd=2 )}
 
 
 
-
-#' Speed-G''_{t} plot
+#' titolo....Speed-G'_{t} plot
 #' 
-#' @description create Speed-G''_{t} plot
-#' @param Gpp_t from the output matrix from fft analysis or numerical differentiation analysis
-#' @param G_speed from the output matrix from fft analysis or numerical differentiation analysis
-#' @param ... parameters of plot()
-#' @return {No return value}
-#' @author Giorgio Luciano and Serena Beretta, based on the Plotting functions created by Simon Rogers Group for Soft Matter
-#' @examples \donttest{ data(mydata)
-#' df <- rpp_read2(mydata , selected=c(2, 3, 4, 0, 0, 1, 0, 0))
-#' time_wave <- df$raw_time
-#' resp_wave <- data.frame(df$strain,df$strain_rate,df$stress) 
-#' out <- Rpp_num(time_wave, resp_wave , L=1024, k=8, num_mode=1)
-#' G_speed= out$spp_data_out$G_speed
-#' Gpp_t= out$spp_data_out$Gpp_t
-#' plotSpeedGpp(G_speed,Gpp_t)
-#' 
+#' @description cosa fa la funzione...
+#' @param data
+#' @return 
+#' @author 
+#' @keywords 
+#' @examples \dontest{
+#' plot()
+#' }
 #' @export
-#' @references Simon A. Rogersa, M. Paul Letting, A sequence of physical processes determined and quantified in large-amplitude oscillatory shear (LAOS): Application to theoretical nonlinear models
-#' Journal of Rheology 56:1, 1-25
-plotSpeedGpp <- function(G_speed,Gpp_t,...){
-  plot(G_speed,Gpp_t,main=expression("Speed-G''"[t]*"") ,xlab=expression("Speed [Pa/s]"),ylab=expression("G''"[t]*" [Pa]"),type="l", col="red",lwd=2 )
-}
+#' @references 
+ggplotSpeedGp <- function(data=spp_data_out,...){
+      ggplot(data,...) +
+	  geom_path(aes(x=Gp_t, y=G_speed),colour="red",size=1.1) +
+	  labs(title=expression("Speed-G'"[t]*""),x=expression("G'"[t]*" [Pa]"), y = expression("Speed-G''"[t]*" [Pa/s]")) +
+	  geom_vline(xintercept = 0, linetype="dashed", color = "black") +
+	  geom_hline(yintercept = 0, linetype="dashed", color = "black") +
+	  theme_giolu()}
+	  
 
 
 
 
-#' Strain Delta Plot
-#' @description create Strain Delta Plot
-#' @param strain from the output matrix from fft analysis or numerical differentiation analysis
-#' @param delta_t from the output matrix from fft analysis or numerical differentiation analysis
-#' @param ... parameters of plot()
-#' @return {No return value}
-#' @author Giorgio Luciano and Serena Beretta, based on the Plotting functions created by Simon Rogers Group for Soft Matter
-#' @examples \donttest{ data(mydata)
-#' df <- rpp_read2(mydata , selected=c(2, 3, 4, 0, 0, 1, 0, 0))
-#' time_wave <- df$raw_time
-#' resp_wave <- data.frame(df$strain,df$strain_rate,df$stress) 
-#' out <- Rpp_num(time_wave, resp_wave , L=1024, k=8, num_mode=1)
-#' strain= out$spp_data_out$strain
-#' delta_t= out$spp_data_out$delta_t
-#' plotDeltaStrain(strain,delta_t)
+
+#' titolo....Speed-G"_{t} plot
 #' 
+#' @description cosa fa la funzione...
+#' @param data
+#' @return 
+#' @author 
+#' @keywords 
+#' @examples \dontest{
+#' plot()
+#' }
 #' @export
-#' @references Simon A. Rogersa, M. Paul Letting, A sequence of physical processes determined and quantified in large-amplitude oscillatory shear (LAOS): Application to theoretical nonlinear models
-#' Journal of Rheology 56:1, 1-25
-plotDeltaStrain <- function(strain,delta_t,...){
-  plot(strain,delta_t,main=expression("delta"[t]*"-strain"),xlab=expression("strain [-]"),ylab=expression("delta"[t]*" [rad]"),type="l", col="red",lwd=2 )}
+#' @references 
+ggplotSpeedGpp <- function(data=spp_data_out,...){
+	   geom_path(aes(x=G_speed, y=Gpp_t),colour="red",size=1.1) +
+	   labs(title=expression("Speed-G''"[t]*""),x =expression("Speed [Pa/s]"), y = expression("G''"[t]*" [Pa]")) +
+	   geom_vline(xintercept = 0, linetype="dashed", color = "black") +
+	   geom_hline(yintercept = 0, linetype="dashed", color = "black") +
+	   theme_giolu()}
+	  
+	   
 
 
 
-#' Strain Delta Plot
-#' @description create Strain Delta Plot
-#' @param strain from the output matrix from fft analysis or numerical differentiation analysis
-#' @param delta_t_dot from the output matrix from fft analysis or numerical differentiation analysis
-#' @param ... parameters of plot()
-#' @return {No return value}
-#' @examples \donttest{ data(mydata)
-#' df <- rpp_read2(mydata , selected=c(2, 3, 4, 0, 0, 1, 0, 0))
-#' time_wave <- df$raw_time
-#' resp_wave <- data.frame(df$strain,df$strain_rate,df$stress) 
-#' out <- Rpp_num(time_wave, resp_wave , L=1024, k=8, num_mode=1)
-#' strain= out$spp_data_out$strain
-#' delta_t_dot= out$spp_data_out$delta_t_dot
-#' plotPAV(strain,delta_t_dot)
+#' titolo....delta_t v strain plot
 #' 
+#' @description cosa fa la funzione...
+#' @param data
+#' @return 
+#' @author 
+#' @keywords 
+#' @examples \dontest{
+#' plot()
+#' }
 #' @export
-#' @references Simon A. Rogersa, M. Paul Letting, A sequence of physical processes determined and quantified in large-amplitude oscillatory shear (LAOS): Application to theoretical nonlinear models
-#' Journal of Rheology 56:1, 1-25
-plotPAV  <- function(strain,delta_t_dot,...){
-  plot(strain,delta_t_dot,main="PAV-strain",xlab=expression("strain [-]"),ylab=expression("PAV [] (time-normalized)"),type="l", col="red", lwd=2)}
+#' @references 
+ggplotDeltaStrain <- function(data=spp_data_out,...){
+	   ggplot(data,...) + 
+	   geom_path(aes(x=strain, y=delta_t),colour="red",size=1.1) +
+	   labs(title=expression("delta"[t]*"-strain"),x =expression("strain [-]"), y = expression("delta"[t]*" [rad]")) +
+	   geom_vline(xintercept = 0, linetype="dashed", color = "black") +
+	   geom_hline(yintercept = 0, linetype="dashed", color = "black") +
+	   geom_abline(intercept = 0, slope = 1, color="black",linetype="dashed")+
+	   theme_giolu()}
+   
 
 
 
 
-#' Strain Displacement Stress
-#' @description Strain Displacement Stress
-#' @param strain from the output matrix from fft analysis or numerical differentiation analysis
-#' @param disp_stress from the output matrix from fft analysis or numerical differentiation analysis
-#' @param ... parameters of plot()
-#' @return {No return value}
-#' @examples \donttest{ data(mydata)
-#' df <- rpp_read2(mydata , selected=c(2, 3, 4, 0, 0, 1, 0, 0))
-#' time_wave <- df$raw_time
-#' resp_wave <- data.frame(df$strain,df$strain_rate,df$stress) 
-#' out <- Rpp_num(time_wave, resp_wave , L=1024, k=8, num_mode=1)
-#' strain= out$spp_data_out$strain
-#' disp_stress= out$spp_data_out$disp_stress
-#' plotDisp(strain,disp_stress)
+#' titolo....PAV v strain plot
 #' 
+#' @description cosa fa la funzione...
+#' @param data
+#' @return 
+#' @author 
+#' @keywords 
+#' @examples \dontest{
+#' plot()
+#' }
 #' @export
-#' @references Simon A. Rogersa, M. Paul Letting, A sequence of physical processes determined and quantified in large-amplitude oscillatory shear (LAOS): Application to theoretical nonlinear models
-#' Journal of Rheology 56:1, 1-25
-plotDisp  <- function(strain,disp_stress,...){
-  plot(strain,disp_stress,main="displacement stress-strain",xlab=expression("strain [-]"),ylab=expression("displacement stress [Pa]"),type="l", col="red", lwd=2 )}
+#' @references 
+ggplotPAV <- function(data=spp_data_out,...){
+	   ggplot(data,...) +
+	   geom_path(aes(x=strain, y=delta_t_dot),colour="red",size=1.1) +
+	   labs(title="PAV-strain",x =expression("strain [-]"), y = expression("PAV [] (time-normalized)")) +
+	   geom_vline(xintercept = 0, linetype="dashed", color = "black") +
+	   geom_hline(yintercept = 0, linetype="dashed", color = "black") +
+	   geom_abline(intercept = 0, slope = 1, color="black",linetype="dashed")+
+	   theme_giolu()}
+	   
 
 
 
 
-#' Strain Gp_t,eq_strain_est
-#' @description  Strain Gp_t,eq_strain_est
-#' @param Gp_t from the output matrix from fft analysis or numerical differentiation analysis
-#' @param eq_strain_est from the output matrix from fft analysis or numerical differentiation analysis
-#' @param ... parameters of plot()
-#' @return {No return value}
-#' @examples \donttest{ data(mydata)
-#' df <- rpp_read2(mydata , selected=c(2, 3, 4, 0, 0, 1, 0, 0))
-#' time_wave <- df$raw_time
-#' resp_wave <- data.frame(df$strain,df$strain_rate,df$stress) 
-#' out <- Rpp_num(time_wave, resp_wave , L=1024, k=8, num_mode=1)
-#' Gp_t= out$spp_data_out$Gp_t
-#' eq_strain_est= out$spp_data_out$eq_strain_est
-#' plotStrain(Gp_t,eq_strain_est)
+#' titolo....displacement stress plot
 #' 
+#' @description cosa fa la funzione...
+#' @param data
+#' @return 
+#' @author 
+#' @keywords 
+#' @examples \dontest{
+#' plot()
+#' }
 #' @export
-#' @references Simon A. Rogersa, M. Paul Letting, A sequence of physical processes determined and quantified in large-amplitude oscillatory shear (LAOS): Application to theoretical nonlinear models
-#' Journal of Rheology 56:1, 1-25
-plotStrain <- function(Gp_t,eq_strain_est,...){
-  plot(Gp_t,eq_strain_est,main="est. eq. strain-tan(delta)",xlab=expression("G'"[t]*" [Pa]"),ylab=expression("esp eq. strain[-]"),type="l", col="red", lwd=2 )}
+#' @references 
+ggplotDisp <- function(data=spp_data_out,...){
+	   ggplot(data,...) +
+	   geom_path(aes(x=strain, y=disp_stress),colour="red",size=1.1) +
+	   labs(title="displacement stress-strain",x =expression("strain [-]"), y = expression("displacement stress [Pa]")) +
+	   geom_vline(xintercept = 0, linetype="dashed", color = "black") +
+	   geom_hline(yintercept = 0, linetype="dashed", color = "black") +
+	   geom_abline(intercept = 0, slope = 1, color="black",linetype="dashed")+
+	   theme_giolu()}
+	   
+	   
 
 
-#Waveform Comparison
-#' Strain time_wave,strain
-#' @description  Strain time_wave, strain
-#' @param time_wave time from output data
-#' @param strain from the output matrix from fft analysis or numerical differentiation analysis
-#' @param time_wave_in time from input data
-#' @param strain_in from the input matrix from fft analysis or numerical differentiation analysis
-#' @param ... parameters of plot()
-#' @return {No return value}
-#' @examples \donttest{ data(mydata)
-#' df <- rpp_read2(mydata , selected=c(2, 3, 4, 0, 0, 1, 0, 0))
-#' time_wave <- df$raw_time
-#' resp_wave <- data.frame(df$strain,df$strain_rate,df$stress) 
-#' out <- Rpp_num(time_wave, resp_wave , L=1024, k=8, num_mode=1)
-#' time_wave= out$spp_data_out$time_wave
-#' strain= out$spp_data_out$strain
-#' time_wave_in= out$spp_data_in$time_wave
-#' strain_in= out$spp_data_in$strain
-#' plotTimeStrain(time_wave,strain,time_wave_in,strain_in)
+
+
+#' titolo....estimated eq strain plot
 #' 
+#' @description cosa fa la funzione...
+#' @param data
+#' @return 
+#' @author 
+#' @keywords 
+#' @examples \dontest{
+#' plot()
+#' }
 #' @export
-#' @references Simon A. Rogersa, M. Paul Letting, A sequence of physical processes determined and quantified in large-amplitude oscillatory shear (LAOS): Application to theoretical nonlinear models
-#' Journal of Rheology 56:1, 1-25
-plotTimeStrain <- function(time_wave,strain,time_wave_in,strain_in, ...){
-  plot(time_wave,strain,main="Strain-time",xlab=expression("Time [s]"),ylab = expression("Strain [-]"),type="l", col="red",xlim=c(0,3), lwd=2)
-  lines(time_wave_in,strain_in,lty=2)}
+#' @references 
+ggplotStrain <- function(data=spp_data_out,...){
+	   ggplot(data,...) +
+	   geom_path(aes(x=Gp_t, y=eq_strain_est),colour="red",size=1.1) +
+	   labs(title="est. eq. strain-tan(delta)",x =expression("G'"[t]*" [Pa]"), y =expression("esp eq. strain[-]")) +
+	   geom_vline(xintercept = 0, linetype="dashed", color = "black") +
+	   geom_hline(yintercept = 0, linetype="dashed", color = "black") +
+	   geom_abline(intercept = 0, slope = 1, color="black",linetype="dashed")+
+	   theme_giolu()}
+	   
 
 
-#' Rate, time_wave plot
-#' @description create Rate, time_wave plot
-#' @param time_wave from the output matrix from fft analysis or numerical differentiation analysis
-#' @param rate from the output matrix from fft analysis or numerical differentiation analysis
-#' @param time_wave_in raw time from input data
-#' @param strain_rate strain rate from input data
-#' @param ... parameters of plot()
-#' @return {No return value}
-#' @author Giorgio Luciano and Serena Beretta, based on the Plotting functions created by Simon Rogers Group for Soft Matter
-#' @examples \donttest{ data(mydata)
-#' df <- rpp_read2(mydata , selected=c(2, 3, 4, 0, 0, 1, 0, 0))
-#' time_wave <- df$raw_time
-#' resp_wave <- data.frame(df$strain,df$strain_rate,df$stress) 
-#' out <- Rpp_num(time_wave, resp_wave , L=1024, k=8, num_mode=1)
-#' time_wave= out$spp_data_out$time_wave
-#' rate= out$spp_data_out$rate
-#' time_wave_in= out$spp_data_in$time_wave
-#' strain_rate= out$spp_data_in$strain_rate
-#' plotTimeRate(time_wave,rate,time_wave_in,strain_rate)
+
+
+
+#' titolo....Strain-Time plot
 #' 
+#' @description cosa fa la funzione...
+#' @param data
+#' @return 
+#' @author 
+#' @keywords 
+#' @examples \dontest{
+#' plot()
+#' }
 #' @export
-#' @references Simon A. Rogersa, M. Paul Letting, A sequence of physical processes determined and quantified in large-amplitude oscillatory shear (LAOS): Application to theoretical nonlinear models
-#' Journal of Rheology 56:1, 1-25
+#' @references 
+ggplotTimeStrain <- function(data=spp_data_in,...){
+	   ggplot(...) +
+	   geom_path(aes(x=time_wave, y=strain),colour="red",size=1.1) +
+	   geom_path(data=(spp_data_in),aes(x=time_wave, y=strain)) +
+	   labs(title="Strain-time",x = expression("Time [s]"), y = expression("Strain [-]") ) +
+	   theme_giolu()}
+	   
 
-plotTimeRate <- function(time_wave,rate,time_wave_in,strain_rate,...){
-  plot(time_wave,rate,main="Rate-time",xlab=expression("Time [s]"),ylab = expression("Rate [1/s]"),type="l", col="red",xlim=c(0,3), lwd=2)
-  lines(time_wave_in,strain_rate,lty=2)}
 
-#' Stress-Time plot
+
+
+#' titolo....Rate-Time plot
 #' 
-#' @description create Stress-Time plot
-#' @param time_wave from the output matrix from fft analysis or numerical differentiation analysis
-#' @param stress from the output matrix from fft analysis or numerical differentiation analysis
-#' @param time_wave_in raw time from input data
-#' @param strain_rate strain rate from input data
-#' @param ... parameters of plot()
-#' @return {No return value}
-#' @author Giorgio Luciano and Serena Beretta, based on the Plotting functions created by Simon Rogers Group for Soft Matter
-#' @examples \donttest{ data(mydata)
-#' df <- rpp_read2(mydata , selected=c(2, 3, 4, 0, 0, 1, 0, 0))
-#' time_wave <- df$raw_time
-#' resp_wave <- data.frame(df$strain,df$strain_rate,df$stress) 
-#' out <- Rpp_num(time_wave, resp_wave , L=1024, k=8, num_mode=1)
-#' time_wave= out$spp_data_out$time_wave
-#' stress= out$spp_data_out$stress
-#' time_wave_in= out$spp_data_in$time_wave
-#' strain_rate= out$spp_data_in$strain_rate
-#' plotTimeStress(time_wave,stress,time_wave_in,strain_rate)
-#' 
+#' @description cosa fa la funzione...
+#' @param data
+#' @return 
+#' @author 
+#' @keywords 
+#' @examples \dontest{
+#' plot()
+#' }
 #' @export
+#' @references 
+ggplotTimeRate <- function(data=spp_data_in,...){
+	   ggplot(data,...) +
+	   geom_path(aes(x=time_wave, y=rate),colour="red",size=1.1)+
+	   geom_path(data=(spp_data_in),aes(x=time_wave, y=strain_rate)) +
+	   labs(title="Rate-time",x = expression("Time [s]"), y = expression("Rate [1/s]")) +
+	   theme_giolu()}
+	   
 
-plotTimeStress <- function(time_wave,stress,time_wave_in,strain_rate,...){
-  plot(time_wave,stress,main="Stress-time",xlab=expression("Time [s]"),ylab=expression("Stress [Pa]"),type="l", col="red", xlim=c(0,3), lwd=2)
-  lines(time_wave_in,strain_rate,lty=2)}
 
-#' Stress-Time plot
+
+
+#' titolo....Stress-Time plot
 #' 
-#' @description create Stress-Time plot
-#' @param time_wave_in raw time from input data
-#' @param stress_in stress from input data
-#' @param time_wave from the output matrix from fft analysis or numerical differentiation analysis
-#' @param stress from the output matrix from fft analysis or numerical differentiation analysis
-#' @return {No return value}
-#' @author Giorgio Luciano and Serena Beretta, based on the Plotting functions created by Simon Rogers Group for Soft Matter
-#' @examples \donttest{ data(mydata)
-#' df <- rpp_read2(mydata , selected=c(2, 3, 4, 0, 0, 1, 0, 0))
-#' time_wave <- df$raw_time
-#' resp_wave <- data.frame(df$strain,df$strain_rate,df$stress) 
-#' out <- Rpp_num(time_wave, resp_wave , L=1024, k=8, num_mode=1)
-#' time_wave_in= out$spp_data_in$time_wave
-#' stress_in= out$spp_data_in$stress
-#' time_wave= out$spp_data_out$time_wave
-#' stress= out$spp_data_out$stress
-#' plotStressTime(time_wave_in,stress_in,time_wave,stress)
-#' 
+#' @description cosa fa la funzione...
+#' @param data
+#' @return 
+#' @author 
+#' @keywords 
+#' @examples \dontest{
+#' plot()
+#' }
 #' @export
+#' @references 
+ggplotTimeStress <- function(data=spp_data_in,...){
+	   ggplot(data,...) +
+	   geom_path(aes(x=time_wave, y=stress),colour="red",size=1.1) +
+	   geom_path(data=(spp_data_in),aes(x=time_wave, y=stress)) +
+	   labs(title="Stress-time",x = expression("Time [s]"), y = expression("Stress [Pa]")) +
+	   theme_giolu()}
 
-plotStressTime <- function(time_wave_in,stress_in,time_wave,stress){
-  plot(time_wave_in,stress_in,xlab=expression("Time[s]"),ylab=expression("Stress [Pa]"),type="l", col="black",lty=2 )
-  lines(time_wave,stress,main="Stress-time",type="l", col="red", lwd=2 )}
+	   
 
-#' Fourier Harmonic Magnitudes plot
+
+
+#' titolo....Fourier Harmonic Magnitudes plot
 #' 
-#' @description create Fourier Harmonic Magnitudes plot
-#' @param ft_amp from the output matrix from fft analysis or numerical differentiation analysis
-#' @param fft_resp from the output matrix from fft analysis or numerical differentiation analysis
-#' @param spp_params input parameters used for the fft analysis or numerical differentiation analysis
-#' @param ... parameters of plot()
-#' @return {No return value}
-#' @author Giorgio Luciano and Serena Beretta, based on the Plotting functions created by Simon Rogers Group for Soft Matter
-#' @examples \donttest{ data(mydata)
-#' df <- rpp_read2(mydata , selected=c(2, 3, 4, 0, 0, 1, 0, 0))
-#' time_wave <- df$raw_time
-#' resp_wave <- data.frame(df$strain,df$strain_rate,df$stress) 
-#' out <- rpp_fft(time_wave,resp_wave,L=1024,omega=3.16 , M=15,p=1)
-#' ft_amp= out$ft_out$ft_amp
-#' fft_resp= out$ft_out$fft_resp
-#' spp_params= out$spp_params
-#' plotFft(ft_amp,fft_resp,spp_params)
-#' 
+#' @description cosa fa la funzione...
+#' @param data
+#' @return 
+#' @author 
+#' @keywords 
+#' @examples \dontest{
+#' plot()
+#' }
 #' @export
-plotFft <- function(ft_amp,fft_resp,spp_params,...){
-  plot(ft_amp,fft_resp,main="Fourier spectrum",xlab=expression("Number of harmonics [-]"),ylab=expression(paste(I[n],"/",I[1],"[-]")),log="y")
-  segments(x0=as.numeric(spp_params[2]), y0=10^-10, x1 = as.numeric(spp_params[2]), y1 = 0.7,col="red",lwd=2)}
+#' @references 
+ggplotFft <- function(data=ft_out,spp_params,...){
+		ggplot(data,...) + 
+		geom_segment(aes(x=ft_amp, xend=ft_amp, y=0, yend=fft_resp) , size=1, color="blue") +
+		geom_segment(aes(x=as.numeric(spp_params[2]), y = 10^-10, xend = as.numeric(spp_params[2]), yend =  0.7),colour="red",size=2)+
+		scale_y_log10(breaks = scales::trans_breaks("log10", function(x) 10^x),labels = scales::trans_format("log10", scales::math_format(10^.x))) +
+		labs(title="Fourier Spectrum",x = expression("Number of harmonics [-]"), y = expression(paste(I[n],"/",I[1],"[-]"))) +
+		annotation_logticks(sides = "lr") +
+	    theme_giolu()}
+
+  
+
+    
 
 
+	   
 
-
+    
