@@ -426,6 +426,53 @@ plotFft <- function(ft_amp,fft_resp,spp_params,...){
   plot(ft_amp,fft_resp,main="Fourier spectrum",xlab=expression("Number of harmonics [-]"),ylab=expression(paste(I[n],"/",I[1],"[-]")),log="y")
   segments(x0=as.numeric(spp_params[2]), y0=10^-10, x1 = as.numeric(spp_params[2]), y1 = 0.7,col="red",lwd=2)}
 
+#' Stress-Strain Normalized plot
+#' 
+#' @description create Stress Strain Normalized Plot
+#' @param stress data the output matrix from fft analysis or numerical differentiation analysis
+#' @param strain data the output matrix from fft analysis or numerical differentiation analysis
+#' @param stress_in data the input matrix from fft analysis or numerical differentiation analysis
+#' @param strain_in data the input matrix from fft analysis or numerical differentiation analysis
+#' @param ... parameters of plot()
+#' @return {No return value}
+#' @author Giorgio Luciano and Serena Beretta, based on the Plotting functions created by Simon Rogers Group for Soft Matter
+#' @keywords SPP Stress-Strain plot
+#' @examples \donttest{ data(mydata)
+#' df <- rpp_read2(mydata , selected=c(2, 3, 4, 0, 0, 1, 0, 0))
+#' time_wave <- df$raw_time
+#' resp_wave <- data.frame(df$strain,df$strain_rate,df$stress) 
+#' out <- Rpp_num(time_wave, resp_wave , L=1024, k=8, num_mode=1)
+#' strain= out$spp_data_out$strain
+#' stress= out$spp_data_out$stress
+#' strain_in= out$spp_data_in$strain
+#' stress_in= out$spp_data_in$stress
+#' plotStressStrain(stress, strain,strain_in,stress_in)
+#' 
+#' @export
+#' @references Simon A. Rogersa, M. Paul Letting, A sequence of physical processes determined and quantified in large-amplitude oscillatory shear (LAOS): Application to theoretical nonlinear models
+#' Journal of Rheology 56:1, 1-25 
+
+ggplotStressStrainN <- function(data=spp_data_out,spp_data_in,...){
+	 
+	 strain <- data$strain
+	 stress <- data$stress
+	 
+	 data$strain_n <- strain/abs((max(strain)-min(strain)))
+	 data$stress_n <- stress/abs((max(stress)-min(stress)))
+
+	 strain_in <- spp_data_in$strain
+	 stress_in <- spp_data_in$stress
+	
+     spp_data_in$strain_n <- strain_in/abs((max(strain_in)-min(strain_in)))
+	 spp_data_in$stress_n <- stress_in/abs((max(stress_in)-min(stress_in)))
+	
+	 ggplot(data,...) + 
+     geom_path(aes(x=strain_n, y=stress_n),size=1.1)+
+	 geom_path(data=(spp_data_in),aes(x=strain_n, y=stress_n),colour="red") + 
+	 labs(title="stress-strain",x ="Strain [-]", y = "Stress [Pa]") +
+	 geom_vline(xintercept = 0, linetype="dashed", color = "black") +
+	 geom_hline(yintercept = 0, linetype="dashed", color = "black") +
+	 theme_giolu()}
 
 
 
